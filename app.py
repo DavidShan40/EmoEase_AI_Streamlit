@@ -110,10 +110,10 @@ st.markdown(
     """
     <style>
     div[data-testid="stHorizontalBlock"]{
-        position:fixed;
-        right: 10%;
-        left: 10%;
-        bottom: 8%;
+        position:relative;
+        right: 10px;
+        left: 10px;
+        bottom: -450px;
         border: 2px;
         background-color: #EEEEEE;
         padding: 10px;
