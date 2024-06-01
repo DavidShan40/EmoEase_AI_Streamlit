@@ -1,6 +1,8 @@
 import streamlit as st
 from openai import OpenAI
 import os
+# self defined
+from whisper_stt import whisper_stt
 
 # Front End
 # ***************************************************************
@@ -102,14 +104,25 @@ def get_response(question, pre_message=None, pre_answer=None):
 	except Exception as e:
 		return f"An error occurred: {str(e)}"
 
-if prompt := st.chat_input():
-	st.session_state.messages.append({"role": "user", "content": prompt})
-	st.chat_message("user").write(prompt)
-	#print(st.session_state.messages)
-	if st.session_state["message_GPT"] == None:
-		msg, message_GPT = get_response(st.session_state.messages[-1]['content'])
-	else:
-		msg, message_GPT = get_response(st.session_state.messages[-1]['content'], st.session_state["message_GPT"], st.session_state.messages[-2]['content'])
-	st.session_state["message_GPT"] = message_GPT
-	st.session_state.messages.append({"role": "assistant", "content": msg})
-	st.chat_message("assistant").write(msg)
+# input = st.chat_input()
+# text = whisper_stt(openai_api_key=openai_api_key)  
+
+with st.container(border=True):
+	col1, col2 = st.columns([2, 8])
+	with col1:
+		text = whisper_stt(openai_api_key=openai_api_key)
+	with col2:
+		input = st.chat_input()
+		
+with st.container(border=True):
+	if prompt := input or (prompt := text):
+		st.session_state.messages.append({"role": "user", "content": prompt})
+		st.chat_message("user").write(prompt)
+		#print(st.session_state.messages)
+		if st.session_state["message_GPT"] == None:
+			msg, message_GPT = get_response(st.session_state.messages[-1]['content'])
+		else:
+			msg, message_GPT = get_response(st.session_state.messages[-1]['content'], st.session_state["message_GPT"], st.session_state.messages[-2]['content'])
+		st.session_state["message_GPT"] = message_GPT
+		st.session_state.messages.append({"role": "assistant", "content": msg})
+		st.chat_message("assistant").write(msg)
