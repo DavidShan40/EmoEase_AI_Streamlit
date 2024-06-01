@@ -77,8 +77,13 @@ system_prompt = "You are an AI Application Agent, to provide step-by-step guidan
 # non-changeable setting
 openai_api_key = os.environ.get("OPENAI_API_KEY")
 client = OpenAI(api_key=openai_api_key)
+if "message_GPT" not in st.session_state:
+	st.session_state["message_GPT"] = None
+if "messages" not in st.session_state:
+	st.session_state["messages"] = [{"role": "assistant", "content": "How can I help you?"}]
+for msg in st.session_state.messages:
+	st.chat_message(msg["role"]).write(msg["content"])
 
-# get response function
 def get_response(question, pre_message=None, pre_answer=None):
 	if pre_message == None:
 		message_GPT = [
@@ -99,32 +104,40 @@ def get_response(question, pre_message=None, pre_answer=None):
 	except Exception as e:
 		return f"An error occurred: {str(e)}"
 
-
-# First container with chat logic
-with st.container(border=True):
-	if "message_GPT" not in st.session_state:
-		st.session_state["message_GPT"] = None
-	if "messages" not in st.session_state:
-		st.session_state["messages"] = [{"role": "assistant", "content": "How can I help you?"}]
-	for msg in st.session_state.messages:
-		st.chat_message(msg["role"]).write(msg["content"])
-
-	if prompt := st.session_state.get("input", None) or (prompt := st.session_state.get("text", None)):
-		st.session_state.messages.append({"role": "user", "content": prompt})
-		st.chat_message("user").write(prompt)
-		if st.session_state.get("message_GPT", None) is None:
-			msg, message_GPT = get_response(st.session_state.messages[-1]['content'])
-		else:
-			msg, message_GPT = get_response(st.session_state.messages[-1]['content'], st.session_state["message_GPT"], st.session_state.messages[-2]['content'])
-		st.session_state["message_GPT"] = message_GPT
-		st.session_state.messages.append({"role": "assistant", "content": msg})
-		st.chat_message("assistant").write(msg)
-
-# Second container with input fields
-with st.container(border=True):
+# input = st.chat_input()
+# text = whisper_stt(openai_api_key=openai_api_key)  
+st.markdown(
+    """
+    <style>
+    div[data-testid="stHorizontalBlock"]{
+        position:fixed;
+        right: 10%;
+        left: 10%;
+        bottom: 8%;
+        border: 2px;
+        background-color: #EEEEEE;
+        padding: 10px;
+        z-index: 10;
+    }
+    </style>
+    """, unsafe_allow_html=True
+)
+with st.container():
 	col1, col2 = st.columns([2, 8])
 	with col1:
-		st.session_state["text"] = whisper_stt(openai_api_key=openai_api_key)
+		text = whisper_stt(openai_api_key=openai_api_key)
 	with col2:
-		st.session_state["input"] = st.chat_input()
+		input = st.chat_input()
 
+
+if prompt := input or (prompt := text):
+	st.session_state.messages.append({"role": "user", "content": prompt})
+	st.chat_message("user").write(prompt)
+	#print(st.session_state.messages)
+	if st.session_state["message_GPT"] == None:
+		msg, message_GPT = get_response(st.session_state.messages[-1]['content'])
+	else:
+		msg, message_GPT = get_response(st.session_state.messages[-1]['content'], st.session_state["message_GPT"], st.session_state.messages[-2]['content'])
+	st.session_state["message_GPT"] = message_GPT
+	st.session_state.messages.append({"role": "assistant", "content": msg})
+	st.chat_message("assistant").write(msg)
