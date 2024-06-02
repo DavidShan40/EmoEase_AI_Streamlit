@@ -1,7 +1,10 @@
 # EmoEase AI
 ### Find Your Inner Peace with AI: Effortlessly Relieve Stress and Boost Your Mood Today
 
-This repository is service page with GPT-4o, Whisper, chatGPT, Streamlit, VsCode, HTML, CSS, Python, 
+This repository is service page with GPT-4o, Whisper, chatGPT, Streamlit, VsCode, HTML, CSS, Python
+
+Our Front End Page Demo: https://emoeaseai.vercel.app/ \
+Our Service Page Demo: https://emoeaseai.streamlit.app/
 
 ## (if you did not install the library)
 pip install pyarrow openai SpeechRecognition pyaudio pyttsx3 streamlit-mic-recorder
