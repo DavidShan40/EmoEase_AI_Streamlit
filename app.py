@@ -19,8 +19,8 @@ user_name = st.sidebar.text_input("Enter your name:", placeholder="Enter your na
 pronouns = st.sidebar.selectbox("Your Pronouns:", ["Select", "She", "He", "They"], index=0)
 age_group = st.sidebar.selectbox("Your Age Group:", ["Select", "18-24", "25-34", "35-44", "45-54", "55-64", "65 and over"], index=0)
 bot_name = st.sidebar.text_input("Name for the bot:", placeholder="Enter bot name")
-character = st.sidebar.selectbox("Customize Character:", ["Select", "Lover", "Friend", "Pet", "Family", "Doctor", "Other"], index=0)
-goal = st.sidebar.selectbox("Choose your Goal - Emoease:", ["Select", "Bully", "Depression", "Anxiety", "Breakup", "Failure", "Other"], index=0)
+character = st.sidebar.selectbox("Customize Character:", ["Select", "Lover", "Friend", "Pet", "Family Member", "Doctor"], index=0)
+goal = st.sidebar.selectbox("Choose your Goal - Emoease:", ["Select", "Bully", "Depression", "Anxiety", "Breakup", "Failure"], index=0)
 st.session_state["User_Choices"] = {user_name, ...}
 
 if st.sidebar.button("All done, start with your journey"):
@@ -54,9 +54,34 @@ if st.sidebar.button("All done, start with your journey"):
 	st.sidebar.write(f"Character: {character}")
 	st.sidebar.write(f"Goal: {goal}")
 
+	if user_name != "User not specified":
+		st.session_state["messages"] = [{"role": "assistant", "content": f"Hi {user_name}, nice to meet you!"}]
+	else:
+		st.session_state["messages"] = [{"role": "assistant", "content": f"Hi, nice to meet you!"}]
+	if (bot_name != '') and character != "User not specified":
+		st.session_state["messages"]+=[{"role": "assistant", "content": f"My name is {bot_name} and I'm your {character}"}]
+	st.session_state["messages"]+=[{"role": "assistant", "content": "I'm here to relieve your stress and boost your mood Today. Feel free to talk about anything you met."}]		
+	st.session_state["messages"]+=[{"role": "assistant", "content": "How can I help you?"}]
+
 
 # Define the main chat interface
-st.markdown("<h1 style='text-align: center;'>Chat with Your AI Friend</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>EmoEase AI - Chat with AI </h1>", unsafe_allow_html=True)
+st.markdown("""
+    <style>
+    .container {
+        display: flex;
+        align-items: center;
+    }
+    .large-arrow {
+        font-size: 48px;
+        margin-right: 10px;
+    }
+    </style>
+    <div class="container">
+        <p class="large-arrow">&#10229;</p>
+        <h5 style='text-align: center;'>Choose your preferences</h5>
+    </div>
+""", unsafe_allow_html=True)
 
 # Backend
 # ************************************************
@@ -78,12 +103,12 @@ with open('system_prompt.txt', 'r') as file:
     system_prompt = file.read()
 
 user_prompt = f"\
-User's name is {user_name}\
-User's Pronoun is {pronouns}\
-User's Age Group is {age_group}\
-Your name is {bot_name}\
-You should act as {character}\
-User's Goal: {goal}\
+User's name is {user_name} \
+User's Pronoun is {pronouns} \
+User's Age Group is {age_group} \
+Your name is {bot_name} \
+You should act as {character} \
+User's Goal: {goal} \
 "
 system_prompt += user_prompt
 
@@ -115,6 +140,7 @@ def get_response(question, pre_message=None, pre_answer=None):
 		message_GPT = pre_message
 		message_GPT.append({"role": "assistant", "content": pre_answer})
 		message_GPT.append({"role": "user", "content": question})
+	print(message_GPT)
 
 	try:
 		response = client.chat.completions.create(
@@ -124,6 +150,7 @@ def get_response(question, pre_message=None, pre_answer=None):
 		return response.choices[0].message.content, message_GPT
 	except Exception as e:
 		return f"An error occurred: {str(e)}"
+
 
 # input = st.chat_input()
 # text = whisper_stt(openai_api_key=openai_api_key)  
