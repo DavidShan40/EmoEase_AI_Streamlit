@@ -67,12 +67,25 @@ max_output_token = 4096
 #model = "gpt-4"
 #model = "gpt-3.5-turbo"
 model = "gpt-4o-2024-05-13"
-system_prompt = "You are an AI Application Agent, to provide step-by-step guidance to help users solve their problems. \
-	For each query, detail the steps the user should take. \
-	The output need to tell user's situation, steps to solve the problem, and future possible advices.\
-	Ensure the response is safe and secure. \
-	Do not provide any advice that could be unsafe or unethical\
-	Additional: use first person's view to response"
+# system_prompt = "You are an AI Application Agent, to provide step-by-step guidance to help users solve their problems. \
+# 	For each query, detail the steps the user should take. \
+# 	The output need to tell user's situation, steps to solve the problem, and future possible advices.\
+# 	Ensure the response is safe and secure. \
+# 	Do not provide any advice that could be unsafe or unethical\
+# 	Additional: use first person's view to response"
+with open('system_prompt.txt', 'r') as file:
+    # Read the contents of the file
+    system_prompt = file.read()
+
+user_prompt = f"\
+User's name is {user_name}\
+User's Pronoun is {pronouns}\
+User's Age Group is {age_group}\
+Your name is {bot_name}\
+You should act as {character}\
+User's Goal: {goal}\
+"
+system_prompt += user_prompt
 
 # non-changeable setting
 openai_api_key = os.environ.get("OPENAI_API_KEY")
@@ -80,7 +93,15 @@ client = OpenAI(api_key=openai_api_key)
 if "message_GPT" not in st.session_state:
 	st.session_state["message_GPT"] = None
 if "messages" not in st.session_state:
-	st.session_state["messages"] = [{"role": "assistant", "content": "How can I help you?"}]
+	if user_name != "User not specified":
+		st.session_state["messages"] = [{"role": "assistant", "content": f"Hi {user_name}, nice to meet you!"}]
+	else:
+		st.session_state["messages"] = [{"role": "assistant", "content": f"Hi, nice to meet you!"}]
+	if (bot_name != '') and character != "User not specified":
+		st.session_state["messages"]+=[{"role": "assistant", "content": f"My name is {bot_name} and I'm your {character}"}]
+	st.session_state["messages"]+=[{"role": "assistant", "content": "I'm here to relieve your stress and boost your mood Today. Feel free to talk about anything you met."}]		
+	st.session_state["messages"]+=[{"role": "assistant", "content": "How can I help you?"}]
+
 for msg in st.session_state.messages:
 	st.chat_message(msg["role"]).write(msg["content"])
 
@@ -109,18 +130,18 @@ def get_response(question, pre_message=None, pre_answer=None):
 st.markdown(
     """
     <style>
-    div[data-testid="stHorizontalBlock"]{
-        position:relative;
-        right: 10px;
-        left: 10px;
-        bottom: -400px;
-        border: 2px;
-        background-color: #EEEEEE;
+    .fixed-bottom {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: white;
         padding: 10px;
-        z-index: 10;
+        box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
     }
     </style>
-    """, unsafe_allow_html=True
+    """,
+    unsafe_allow_html=True
 )
 with st.container():
 	col1, col2 = st.columns([2, 8])
@@ -129,15 +150,34 @@ with st.container():
 	with col2:
 		input = st.chat_input()
 
+with st.container():
+	if prompt := input or (prompt := text):
+		st.session_state.messages.append({"role": "user", "content": prompt})
+		st.chat_message("user").write(prompt)
+		#print(st.session_state.messages)
+		if st.session_state["message_GPT"] == None:
+			msg, message_GPT = get_response(st.session_state.messages[-1]['content'])
+		else:
+			msg, message_GPT = get_response(st.session_state.messages[-1]['content'], st.session_state["message_GPT"], st.session_state.messages[-2]['content'])
+		st.session_state["message_GPT"] = message_GPT
+		st.session_state.messages.append({"role": "assistant", "content": msg})
+		st.chat_message("assistant").write(msg)
 
-if prompt := input or (prompt := text):
-	st.session_state.messages.append({"role": "user", "content": prompt})
-	st.chat_message("user").write(prompt)
-	#print(st.session_state.messages)
-	if st.session_state["message_GPT"] == None:
-		msg, message_GPT = get_response(st.session_state.messages[-1]['content'])
-	else:
-		msg, message_GPT = get_response(st.session_state.messages[-1]['content'], st.session_state["message_GPT"], st.session_state.messages[-2]['content'])
-	st.session_state["message_GPT"] = message_GPT
-	st.session_state.messages.append({"role": "assistant", "content": msg})
-	st.chat_message("assistant").write(msg)
+# # Define the scroll operation as a function and pass in something unique for each
+# # page load that it needs to re-evaluate where "bottom" is
+# js = f"""
+# <script>
+#     function scroll(dummy_var_to_force_repeat_execution){{
+#         var textAreas = parent.document.querySelectorAll('section.main');
+#         for (let index = 0; index < textAreas.length; index++) {{
+#             textAreas[index].style.color = 'red';
+#             if (textAreas[index].scrollTop !== textAreas[index].scrollHeight) {{
+#                 textAreas[index].scrollTop = textAreas[index].scrollHeight;
+#             }}
+#         }}
+#     }}
+#     scroll({0.1})
+# </script>
+# """
+
+# st.components.v1.html(js)
