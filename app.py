@@ -136,6 +136,7 @@ st.markdown(
         left: 0;
         width: 100%;
         background-color: white;
+
         padding: 10px;
         box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
     }
@@ -143,6 +144,7 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+
 with st.container():
 	col1, col2 = st.columns([2, 8])
 	with col1:
