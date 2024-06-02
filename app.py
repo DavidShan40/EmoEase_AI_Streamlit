@@ -111,9 +111,10 @@ st.markdown(
     <style>
     div[data-testid="stHorizontalBlock"]{
         position:relative;
+        transform: translateY(-240px); 
         right: 10px;
         left: 10px;
-        bottom: -300px;
+        bottom: -400px;
         border: 2px;
         background-color: #EEEEEE;
         padding: 10px;
@@ -122,6 +123,7 @@ st.markdown(
     </style>
     """, unsafe_allow_html=True
 )
+
 with st.container():
 	col1, col2 = st.columns([2, 8])
 	with col1:
