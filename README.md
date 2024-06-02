@@ -1,5 +1,5 @@
 # EmoEase AI
-Find Your Inner Peace with AI: Effortlessly Relieve Stress and Boost Your Mood Today
+### Find Your Inner Peace with AI: Effortlessly Relieve Stress and Boost Your Mood Today
 
 Service Page with GPT-4o, Whisper, chatGPT, Streamlit 
 
