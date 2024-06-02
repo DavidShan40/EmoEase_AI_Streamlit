@@ -113,7 +113,7 @@ st.markdown(
         position:relative;
         right: 10px;
         left: 10px;
-        bottom: -400px;
+        bottom: 0px;
         border: 2px;
         background-color: #EEEEEE;
         padding: 10px;
